@@ -8,7 +8,7 @@ const service = require("../services/files");
 const rutasProtegidas = express.Router();
 
 rutasProtegidas.use((req, res, next) => {
-  const token = req.headers["access-token"];
+  const token = req.headers.authorization.split(' ')[1];
 
   if (token) {
     jwt.verify(token, config.api_key, (err, decoded) => {
@@ -25,11 +25,26 @@ rutasProtegidas.use((req, res, next) => {
   }
 });
 
-app.post("/render/", rutasProtegidas, (req, res) => {
-  let body = req.body;
-  let file = req.files.file;
+app.post("/read/", rutasProtegidas, (req, res) => {
+  const file = req.files.file;
   service
-    .replaceTemplate(body, file)
+    .readTemplate(file)
+    .then((response) => {
+      res
+        .status(201)
+        .send({ message: "Read Template correcto", info: response });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(400).send({ message: "Error render", info: error });
+    });
+});
+
+app.post("/render/", rutasProtegidas, (req, res) => {
+  const body = req.body;
+  const file = req.files.file;
+  service
+    .renderTemplate(body, file)
     .then((response) => {
       res
         .status(201)

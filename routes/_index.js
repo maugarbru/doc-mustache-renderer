@@ -7,8 +7,8 @@ const app = express.Router();
 app.use("/files/", require("./files"));
 
 app.post("/auth/", (req, res) => {
-  let body = req.body;
-  let auth = config.authentication;
+  const body = req.body;
+  const auth = config.authentication;
 
   if (body.username == auth.username && body.password == auth.password) {
     const token = jwt.sign({ admin: true }, config.api_key, {
